@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #1e3a8a;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            border: 1px solid #e2e8f0;
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            color: #1e40af;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .goal-group {
+            margin-bottom: 20px;
+        }
+
+        .goal-group label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .goal-group label:hover {
+            background: #f0f4f8;
+        }
+
+        .goal-group input[type="radio"] {
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            accent-color: #3b82f6;
+        }
+
+        .goal-group label span {
+            color: #334155;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #334155;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .results-section {
+            display: none;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .workout-routine {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 30px;
+        }
+
+        .routine-header {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .routine-header h3 {
+            font-size: 1.8rem;
+            color: #1e3a8a;
+            margin-bottom: 10px;
+        }
+
+        .routine-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        .meta-label {
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .day-section {
+            margin-bottom: 30px;
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .day-section h4 {
+            font-size: 1.3rem;
+            color: #1e40af;
+            margin-bottom: 15px;
+        }
+
+        .exercise-list {
+            list-style: none;
+        }
+
+        .exercise-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            border-left: 3px solid #10b981;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .exercise-name {
+            font-weight: 600;
+            color: #334155;
+            flex: 1;
+        }
+
+        .exercise-details {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .detail-badge {
+            background: #dbeafe;
+            color: #0c4a6e;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .nutrition-tip {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .nutrition-tip h4 {
+            color: #92400e;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .nutrition-tip p {
+            color: #78350f;
+            line-height: 1.6;
+        }
+
+        .recovery-tips {
+            background: #f0fdf4;
+            border-left: 4px solid #10b981;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .recovery-tips h4 {
+            color: #166534;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .recovery-tips ul {
+            list-style-position: inside;
+            color: #166534;
+            line-height: 1.8;
+        }
+
+        .back-button {
+            margin-bottom: 20px;
+        }
+
+        .back-button button {
+            width: auto;
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            padding: 10px 20px;
+        }
+
+        .back-button button:hover {
+            background: #e2e8f0;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .routine-meta {
+                flex-direction: column;
+            }
+
+            .exercise-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .exercise-details {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💪 Workout Planner</h1>
+            <p>Create personalized exercise routines based on your fitness goals</p>
+        </div>
+
+        <!-- Input Form Section -->
+        <div id="inputSection" class="main-grid">
+            <div class="card">
+                <h2>🎯 Your Fitness Goal</h2>
+                <div class="goal-group">
+                    <label>
+                        <input type="radio" name="goal" value="strength" checked>
+                        <span>Build Strength</span>
+                    </label>
+                </div>
+                <div class="goal-group">
+                    <label>
+                        <input type="radio" name="goal" value="endurance">
+                        <span>Build Endurance</span>
+                    </label>
+                </div>
+                <div class="goal-group">
+                    <label>
+                        <input type="radio" name="goal" value="flexibility">
+                        <span>Improve Flexibility</span>
+                    </label>
+                </div>
+                <div class="goal-group">
+                    <label>
+                        <input type="radio" name="goal" value="weight_loss">
+                        <span>Weight Loss</span>
+                    </label>
+                </div>
+                <div class="goal-group">
+                    <label>
+                        <input type="radio" name="goal" value="muscle_gain">
+                        <span>Build Muscle</span>
+                    </label>
+                </div>
+                <div class="goal-group">
+                    <label>
+                        <input type="radio" name="goal" value="recovery">
+                        <span>Recovery & Mobility</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📋 Workout Details</h2>
+                
+                <div class="form-group">
+                    <label for="experience">Experience Level</label>
+                    <select id="experience">
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="days">Days per Week</label>
+                    <select id="days">
+                        <option value="3">3 days</option>
+                        <option value="4">4 days</option>
+                        <option value="5">5 days</option>
+                        <option value="6">6 days</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="duration">Workout Duration (minutes)</label>
+                    <select id="duration">
+                        <option value="30">30 minutes</option>
+                        <option value="45">45 minutes</option>
+                        <option value="60">60 minutes</option>
+                        <option value="90">90 minutes</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="equipment">Available Equipment</label>
+                    <textarea id="equipment" placeholder="e.g., Dumbbells, Barbell, Treadmill, or 'None' for bodyweight only"></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" onclick="generateWorkout()">Generate Workout Plan</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="results-section">
+            <div class="back-button">
+                <button class="btn-secondary" onclick="backToForm()">← Back to Form</button>
+            </div>
+            <div id="workoutResults"></div>
+        </div>
+    </div>
+
+    <script>
+        const workoutData = {
+            strength: {
+                beginner: {
+                    3: {
+                        30: ['Bodyweight squats (3x10)', 'Push-ups (3x8)', 'Walking lunges (3x10)', 'Plank (3x20s)'],
+                        45: ['Dumbbell squats (4x10)', 'Dumbbell bench press (4x10)', 'Dumbbell rows (4x10)', 'Push-ups (3x8)', 'Plank (3x30s)'],
+                        60: ['Barbell squats (5x5)', 'Barbell bench press (5x5)', 'Barbell rows (5x5)', 'Dumbbell shoulder press (3x10)', 'Dumbbell curls (3x10)', 'Tricep dips (3x8)'],
+                        90: ['Barbell squats (5x5)', 'Barbell bench press (5x5)', 'Barbell rows (5x5)', 'Dumbbell shoulder press (4x10)', 'Dumbbell curls (4x10)', 'Tricep dips (4x10)', 'Leg press (3x10)', 'Face pulls (3x12)']
+                    },
+                    4: {
+                        30: ['Bodyweight squats (3x10)', 'Push-ups (3x8)', 'Walking lunges (3x10)', 'Plank (3x20s)'],
+                        45: ['Dumbbell squats (4x10)', 'Dumbbell bench press (4x10)', 'Dumbbell rows (4x10)', 'Push-ups (3x8)', 'Plank (3x30s)'],
+                        60: ['Barbell squats (5x5)', 'Barbell bench press (5x5)', 'Barbell rows (5x5)', 'Dumbbell shoulder press (3x10)', 'Dumbbell curls (3x10)', 'Tricep dips (3x8)'],
+                        90: ['Barbell squats (5x5)', 'Barbell bench press (5x5)', 'Barbell rows (5x5)', 'Dumbbell shoulder press (4x10)', 'Dumbbell curls (4x10)', 'Tricep dips (4x10)', 'Leg press (3x10)', 'Face pulls (3x12)']
+                    },
+                    5: {
+                        45: ['Dumbbell squats (4x10)', 'Dumbbell bench press (4x10)', 'Dumbbell rows (4x10)', 'Push-ups (3x8)', 'Plank (3x30s)'],
+                        60: ['Barbell squats (5x5)', 'Barbell bench press (5x5)', 'Barbell rows (5x5)', 'Dumbbell shoulder press (3x10)', 'Dumbbell curls (3x10)', 'Tricep dips (3x8)']
+                    },
+                    6: {
+                        60: ['Barbell squats (5x5)', 'Barbell bench press (5x5)', 'Barbell rows (5x5)', 'Dumbbell shoulder press (3x10)', 'Dumbbell curls (3x10)', 'Tricep dips (3x8)']
+                    }
+                },
+                intermediate: {
+                    3: {
+                        45: ['Dumbbell squats (4x8)', 'Dumbbell bench press (4x8)', 'Barbell rows (4x8)', 'Dumbbell shoulder press (3x8)', 'Barbell curls (3x8)', 'Tricep dips (3x8)'],
+                        60: ['Barbell squats (5x5)', 'Barbell bench press (5x5)', 'Barbell deadlifts (5x3)', 'Dumbbell shoulder press (4x8)', 'Barbell curls (3x8)', 'Tricep dips (3x8)'],
+                        90: ['Barbell squats (5x5)', 'Barbell bench press (5x5)', 'Barbell deadlifts (5x3)', 'Barbell rows (5x5)', 'Dumbbell shoulder press (4x8)', 'Barbell curls (3x8)', 'Tricep rope pushdowns (3x10)', 'Face pulls (3x12)']
+                    },
+                    4: {
+                        60: ['Barbell squats (5x5)', 'Barbell bench press (5x5)', 'Barbell rows (5x5)', 'Dumbbell shoulder press (4x8)', 'Barbell curls (3x8)', 'Tricep dips (3x8)'],
+                        90: ['Barbell squats (5x5)', 'Barbell bench press (5x5)', 'Barbell deadlifts (5x3)', 'Barbell rows (5x5)', 'Dumbbell shoulder press (4x8)', 'Barbell curls (3x8)', 'Tricep rope pushdowns (3x10)', 'Face pulls (3x12)']
+                    },
+                    5: {
+                        60: ['Barbell squats (5x5)', 'Barbell bench press (5x5)', 'Barbell rows (5x5)', 'Dumbbell shoulder press (4x8)', 'Barbell curls (3x8)', 'Tricep dips (3x8)'],
+                        90: ['Barbell squats (5x5)', 'Barbell bench press (5x5)', 'Barbell deadlifts (5x3)', 'Barbell rows (5x5)', 'Dumbbell shoulder press (4x8)', 'Barbell curls (3x8)', 'Tricep rope pushdowns (3x10)', 'Face pulls (3x12)']
+                    },
+                    6: {
+                        60: ['Barbell squats (5x5)', 'Barbell bench press (5x5)', 'Barbell deadlifts (5x3)', 'Barbell rows (5x5)', 'Dumbbell shoulder press (4x8)', 'Barbell curls (3x8)', 'Tricep dips (3x8)'],
+                        90: ['Barbell squats (5x5)', 'Barbell bench press (5x5)', 'Barbell deadlifts (5x3)', 'Barbell rows (5x5)', 'Dumbbell shoulder press (4x8)', 'Barbell curls (3x8)', 'Tricep rope pushdowns (3x10)', 'Face pulls (3x12)']
+                    }
+                },
+                advanced: {
+                    3: {
+                        60: ['Barbell squats (4x3)', 'Barbell bench press (4x3)', 'Barbell deadlifts (3x2)', 'Barbell rows (4x3)', 'Dumbbell shoulder press (3x5)', 'Barbell curls (3x5)', 'Tricep rope pushdowns (3x8)'],
+                        90: ['Barbell squats (5x3)', 'Barbell bench press (5x3)', 'Barbell deadlifts (4x2)', 'Barbell rows (4x3)', 'Dumbbell shoulder press (4x5)', 'Barbell curls (3x5)', 'Tricep rope pushdowns (3x8)', 'Weighted dips (3x5)', 'Face pulls (3x12)', 'Ab wheel (3x10)']
+                    },
+                    4: {
+                        60: ['Barbell squats (4x3)', 'Barbell bench press (4x3)', 'Barbell deadlifts (3x2)', 'Barbell rows (4x3)', 'Dumbbell shoulder press (3x5)', 'Barbell curls (3x5)'],
+                        90: ['Barbell squats (5x3)', 'Barbell bench press (5x3)', 'Barbell deadlifts (4x2)', 'Barbell rows (4x3)', 'Dumbbell shoulder press (4x5)', 'Barbell curls (3x5)', 'Tricep rope pushdowns (3x8)', 'Weighted dips (3x5)', 'Face pulls (3x12)', 'Ab wheel (3x10)']
+                    },
+                    5: {
+                        60: ['Barbell squats (4x3)', 'Barbell bench press (4x3)', 'Barbell deadlifts (3x2)', 'Barbell rows (4x3)', 'Dumbbell shoulder press (3x5)', 'Barbell curls (3x5)'],
+                        90: ['Barbell squats (5x3)', 'Barbell bench press (5x3)', 'Barbell deadlifts (4x2)', 'Barbell rows (4x3)', 'Dumbbell shoulder press (4x5)', 'Barbell curls (3x5)', 'Tricep rope pushdowns (3x8)', 'Weighted dips (3x5)', 'Face pulls (3x12)', 'Ab wheel (3x10)']
+                    },
+                    6: {
+                        60: ['Barbell squats (4x3)', 'Barbell bench press (4x3)', 'Barbell deadlifts (3x2)', 'Barbell rows (4x3)', 'Dumbbell shoulder press (3x5)', 'Barbell curls (3x5)'],
+                        90: ['Barbell squats (5x3)', 'Barbell bench press (5x3)', 'Barbell deadlifts (4x2)', 'Barbell rows (4x3)', 'Dumbbell shoulder press (4x5)', 'Barbell curls (3x5)', 'Tricep rope pushdowns (3x8)', 'Weighted dips (3x5)', 'Face pulls (3x12)', 'Ab wheel (3x10)']
+                    }
+                }
+            },
+            endurance: {
+                beginner: {
+                    3: {
+                        30: ['Running (15min steady)', 'Walking lunges (2x10)', 'Plank (2x20s)'],
+                        45: ['Running (25min steady)', 'Jump rope (3x30s)', 'Burpees (2x10)', 'Mountain climbers (2x15)'],
+                        60: ['Running (35min steady)', 'Jump rope (3x60s)', 'Burpees (3x15)', 'Mountain climbers (3x20)', 'High knees (2x30s)'],
+                        90: ['Running (50min steady)', 'Jump rope (4x90s)', 'Burpees (3x20)', 'Mountain climbers (3x30)', 'High knees (3x45s)', 'Jumping jacks (3x30)']
+                    },
+                    4: {
+                        45: ['Running (25min steady)', 'Jump rope (3x30s)', 'Burpees (2x10)', 'Mountain climbers (2x15)'],
+                        60: ['Running (35min steady)', 'Jump rope (3x60s)', 'Burpees (3x15)', 'Mountain climbers (3x20)', 'High knees (2x30s)']
+                    },
+                    5: {
+                        45: ['Running (25min steady)', 'Jump rope (3x30s)', 'Burpees (2x10)', 'Mountain climbers (2x15)'],
+                        60: ['Running (35min steady)', 'Jump rope (3x60s)', 'Burpees (3x15)', 'Mountain climbers (3x20)', 'High knees (2x30s)']
+                    },
+                    6: {
+                        60: ['Running (35min steady)', 'Jump rope (3x60s)', 'Burpees (3x15)', 'Mountain climbers (3x20)', 'High knees (2x30s)']
+                    }
+                },
+                intermediate: {
+                    3: {
+                        45: ['Running (30min mixed pace)', 'Jump rope (4x60s)', 'Burpees (3x15)', 'Mountain climbers (3x20)', 'High knees (3x30s)'],
+                        60: ['Running (40min mixed pace)', 'Jump rope (4x90s)', 'Burpees (4x20)', 'Mountain climbers (4x25)', 'High knees (3x45s)', 'Battle ropes (3x30s)'],
+                        90: ['Running (60min mixed pace)', 'Jump rope (5x90s)', 'Burpees (5x20)', 'Mountain climbers (4x30)', 'High knees (4x45s)', 'Battle ropes (4x45s)', 'Cycling (15min steady)']
+                    },
+                    4: {
+                        60: ['Running (40min mixed pace)', 'Jump rope (4x90s)', 'Burpees (4x20)', 'Mountain climbers (4x25)', 'High knees (3x45s)', 'Battle ropes (3x30s)'],
+                        90: ['Running (50min mixed pace)', 'Jump rope (5x90s)', 'Burpees (5x20)', 'Mountain climbers (4x30)', 'High knees (4x45s)', 'Battle ropes (4x45s)', 'Cycling (15min steady)']
+                    },
+                    5: {
+                        60: ['Running (40min mixed pace)', 'Jump rope (4x90s)', 'Burpees (4x20)', 'Mountain climbers (4x25)', 'High knees (3x45s)', 'Battle ropes (3x30s)'],
+                        90: ['Running (50min mixed pace)', 'Jump rope (5x90s)', 'Burpees (5x20)', 'Mountain climbers (4x30)', 'High knees (4x45s)', 'Battle ropes (4x45s)', 'Cycling (15min steady)']
+                    },
+                    6: {
+                        60: ['Running (40min mixed pace)', 'Jump rope (4x90s)', 'Burpees (4x20)', 'Mountain climbers (4x25)', 'High knees (3x45s)', 'Battle ropes (3x30s)'],
+                        90: ['Running (50min mixed pace)', 'Jump rope (5x90s)', 'Burpees (5x20)', 'Mountain climbers (4x30)', 'High knees (4x45s)', 'Battle ropes (4x45s)', 'Cycling (15min steady)']
+                    }
+                },
+                advanced: {
+                    3: {
+                        60: ['Running (40min intervals)', 'Jump rope (5x120s)', 'Burpees (5x25)', 'Mountain climbers (5x30)', 'Battle ropes (4x60s)', 'Rowing (15min steady)'],
+                        90: ['Running (60min intervals)', 'Jump rope (6x120s)', 'Burpees (6x25)', 'Mountain climbers (6x30)', 'Battle ropes (5x90s)', 'Rowing (20min steady)', 'Cycling (20min intervals)']
+                    },
+                    4: {
+                        60: ['Running (40min intervals)', 'Jump rope (5x120s)', 'Burpees (5x25)', 'Mountain climbers (5x30)', 'Battle ropes (4x60s)', 'Rowing (15min steady)'],
+                        90: ['Running (50min intervals)', 'Jump rope (6x120s)', 'Burpees (6x25)', 'Mountain climbers (6x30)', 'Battle ropes (5x90s)', 'Rowing (20min steady)', 'Cycling (20min intervals)']
+                    },
+                    5: {
+                        60: ['Running (40min intervals)', 'Jump rope (5x120s)', 'Burpees (5x25)', 'Mountain climbers (5x30)', 'Battle ropes (4x60s)', 'Rowing (15min steady)'],
+                        90: ['Running (50min intervals)', 'Jump rope (6x120s)', 'Burpees (6x25)', 'Mountain climbers (6x30)', 'Battle ropes (5x90s)', 'Rowing (20min steady)', 'Cycling (20min intervals)']
+                    },
+                    6: {
+                        60: ['Running (40min intervals)', 'Jump rope (5x120s)', 'Burpees (5x25)', 'Mountain climbers (5x30)', 'Battle ropes (4x60s)', 'Rowing (15min steady)'],
+                        90: ['Running (50min intervals)', 'Jump rope (6x120s)', 'Burpees (6x25)', 'Mountain climbers (6x30)', 'Battle ropes (5x90s)', 'Rowing (20min steady)', 'Cycling (20min intervals)']
+                    }
+                }
+            },
+            flexibility: {
+                beginner: {
+                    3: {
+                        30: ['Cat-cow stretches (2x10)', 'Forward fold (3x30s)', 'Butterfly stretch (3x30s)', 'Child\'s pose (2x30s)'],
+                        45: ['Warm-up light jog (5min)', 'Cat-cow stretches (3x10)', 'Forward fold (3x45s)', 'Butterfly stretch (3x45s)', 'Pigeon pose (3x45s)', 'Child\'s pose (3x45s)', 'Spinal twist (2x30s)'],
+                        60: ['Warm-up light jog (5min)', 'Cat-cow stretches (3x15)', 'Forward fold (4x60s)', 'Butterfly stretch (4x60s)', 'Pigeon pose (4x60s)', 'Child\'s pose (3x60s)', 'Spinal twist (3x45s)', 'Hamstring stretch (3x45s)', 'Quad stretch (2x30s)'],
+                        90: ['Warm-up light jog (10min)', 'Cat-cow stretches (3x15)', 'Forward fold (5x60s)', 'Butterfly stretch (5x60s)', 'Pigeon pose (5x60s)', 'Child\'s pose (4x60s)', 'Spinal twist (4x45s)', 'Hamstring stretch (4x45s)', 'Quad stretch (3x45s)', 'Hip flexor stretch (3x45s)', 'Shoulder rolls (2x10)']
+                    },
+                    4: {
+                        45: ['Warm-up light jog (5min)', 'Cat-cow stretches (3x10)', 'Forward fold (3x45s)', 'Butterfly stretch (3x45s)', 'Pigeon pose (3x45s)', 'Child\'s pose (3x45s)', 'Spinal twist (2x30s)'],
+                        60: ['Warm-up light jog (5min)', 'Cat-cow stretches (3x15)', 'Forward fold (4x60s)', 'Butterfly stretch (4x60s)', 'Pigeon pose (4x60s)', 'Child\'s pose (3x60s)', 'Spinal twist (3x45s)', 'Hamstring stretch (3x45s)', 'Quad stretch (2x30s)']
+                    },
+                    5: {
+                        45: ['Warm-up light jog (5min)', 'Cat-cow stretches (3x10)', 'Forward fold (3x45s)', 'Butterfly stretch (3x45s)', 'Pigeon pose (3x45s)', 'Child\'s pose (3x45s)', 'Spinal twist (2x30s)'],
+                        60: ['Warm-up light jog (5min)', 'Cat-cow stretches (3x15)', 'Forward fold (4x60s)', 'Butterfly stretch (4x60s)', 'Pigeon pose (4x60s)', 'Child\'s pose (3x60s)', 'Spinal twist (3x45s)', 'Hamstring stretch (3x45s)', 'Quad stretch (2x30s)']
+                    },
+                    6: {
+                        60: ['Warm-up light jog (5min)', 'Cat-cow stretches (3x15)', 'Forward fold (4x60s)', 'Butterfly stretch (4x60s)', 'Pigeon pose (4x60s)', 'Child\'s pose (3x60s)', 'Spinal twist (3x45s)', 'Hamstring stretch (3x45s)', 'Quad stretch (2x30s)']
+                    }
+                },
+                intermediate: {
+                    3: {
+                        45: ['Warm-up light jog (5min)', 'Cat-cow stretches (3x12)', 'Forward fold (3x60s)', 'Butterfly stretch (3x60s)', 'Pigeon pose (3x60s)', 'Child\'s pose (3x60s)', 'Deep lunge (2x45s)'],
+                        60: ['Warm-up light jog (5min)', 'Cat-cow stretches (4x12)', 'Forward fold (4x90s)', 'Butterfly stretch (4x90s)', 'Pigeon pose (4x90s)', 'Child\'s pose (4x90s)', 'Deep lunge (3x60s)', 'Cow pose (3x60s)', 'Seated twist (3x45s)', 'Hip circles (2x10)'],
+                        90: ['Warm-up light jog (10min)', 'Cat-cow stretches (4x15)', 'Forward fold (5x90s)', 'Butterfly stretch (5x90s)', 'Pigeon pose (5x90s)', 'Child\'s pose (4x90s)', 'Deep lunge (4x60s)', 'Cow pose (3x60s)', 'Seated twist (3x60s)', 'Hip circles (3x10)', 'Arm circles (2x10)', 'Shoulder stretch (3x45s)']
+                    },
+                    4: {
+                        60: ['Warm-up light jog (5min)', 'Cat-cow stretches (4x12)', 'Forward fold (4x90s)', 'Butterfly stretch (4x90s)', 'Pigeon pose (4x90s)', 'Child\'s pose (4x90s)', 'Deep lunge (3x60s)', 'Cow pose (3x60s)', 'Seated twist (3x45s)', 'Hip circles (2x10)'],
+                        90: ['Warm-up light jog (10min)', 'Cat-cow stretches (4x15)', 'Forward fold (5x90s)', 'Butterfly stretch (5x90s)', 'Pigeon pose (5x90s)', 'Child\'s pose (4x90s)', 'Deep lunge (4x60s)', 'Cow pose (3x60s)', 'Seated twist (3x60s)', 'Hip circles (3x10)', 'Arm circles (2x10)', 'Shoulder stretch (3x45s)']
+                    },
+                    5: {
+                        60: ['Warm-up light jog (5min)', 'Cat-cow stretches (4x12)', 'Forward fold (4x90s)', 'Butterfly stretch (4x90s)', 'Pigeon pose (4x90s)', 'Child\'s pose (4x90s)', 'Deep lunge (3x60s)', 'Cow pose (3x60s)', 'Seated twist (3x45s)', 'Hip circles (2x10)'],
+                        90: ['Warm-up light jog (10min)', 'Cat-cow stretches (4x15)', 'Forward fold (5x90s)', 'Butterfly stretch (5x90s)', 'Pigeon pose (5x90s)', 'Child\'s pose (4x90s)', 'Deep lunge (4x60s)', 'Cow pose (3x60s)', 'Seated twist (3x60s)', 'Hip circles (3x10)', 'Arm circles (2x10)', 'Shoulder stretch (3x45s)']
+                    },
+                    6: {
+                        60: ['Warm-up light jog (5min)', 'Cat-cow stretches (4x12)', 'Forward fold (4x90s)', 'Butterfly stretch (4x90s)', 'Pigeon pose (4x90s)', 'Child\'s pose (4x90s)', 'Deep lunge (3x60s)', 'Cow pose (3x60s)', 'Seated twist (3x45s)', 'Hip circles (2x10)'],
+                        90: ['Warm-up light jog (10min)', 'Cat-cow stretches (4x15)', 'Forward fold (5x90s)', 'Butterfly stretch (5x90s)', 'Pigeon pose (5x90s)', 'Child\'s pose (4x90s)', 'Deep lunge (4x60s)', 'Cow pose (3x60s)', 'Seated twist (3x60s)', 'Hip circles (3x10)', 'Arm circles (2x10)', 'Shoulder stretch (3x45s)']
+                    }
+                },
+                advanced: {
+                    3: {
+                        60: ['Warm-up light jog (5min)', 'Full splits progression', 'King pigeon pose (4x90s)', 'Scorpion pose (4x45s)', 'Forearm stand prep (3x60s)', 'Deep backbends (3x60s)', 'Hip circles (3x15)'],
+                        90: ['Warm-up light jog (10min)', 'Full splits progression', 'King pigeon pose (5x90s)', 'Scorpion pose (5x60s)', 'Forearm stand practice (4x90s)', 'Deep backbends (4x60s)', 'Hip circles (3x15)', 'Shoulder mobility (3x60s)', 'Wrist circles (2x10)']
+                    },
+                    4: {
+                        60: ['Warm-up light jog (5min)', 'Full splits progression', 'King pigeon pose (4x90s)', 'Scorpion pose (4x45s)', 'Forearm stand prep (3x60s)', 'Deep backbends (3x60s)', 'Hip circles (3x15)'],
+                        90: ['Warm-up light jog (10min)', 'Full splits progression', 'King pigeon pose (5x90s)', 'Scorpion pose (5x60s)', 'Forearm stand practice (4x90s)', 'Deep backbends (4x60s)', 'Hip circles (3x15)', 'Shoulder mobility (3x60s)', 'Wrist circles (2x10)']
+                    },
+                    5: {
+                        60: ['Warm-up light jog (5min)', 'Full splits progression', 'King pigeon pose (4x90s)', 'Scorpion pose (4x45s)', 'Forearm stand prep (3x60s)', 'Deep backbends (3x60s)', 'Hip circles (3x15)'],
+                        90: ['Warm-up light jog (10min)', 'Full splits progression', 'King pigeon pose (5x90s)', 'Scorpion pose (5x60s)', 'Forearm stand practice (4x90s)', 'Deep backbends (4x60s)', 'Hip circles (3x15)', 'Shoulder mobility (3x60s)', 'Wrist circles (2x10)']
+                    },
+                    6: {
+                        60: ['Warm-up light jog (5min)', 'Full splits progression', 'King pigeon pose (4x90s)', 'Scorpion pose (4x45s)', 'Forearm stand prep (3x60s)', 'Deep backbends (3x60s)', 'Hip circles (3x15)'],
+                        90: ['Warm-up light jog (10min)', 'Full splits progression', 'King pigeon pose (5x90s)', 'Scorpion pose (5x60s)', 'Forearm stand practice (4x90s)', 'Deep backbends (4x60s)', 'Hip circles (3x15)', 'Shoulder mobility (3x60s)', 'Wrist circles (2x10)']
+                    }
+                }
+            },
+            weight_loss: {
+                beginner: {
+                    3: {
+                        30: ['Walking (15min steady)', 'Bodyweight squats (2x10)', 'Push-ups (2x5)', 'Plank (2x20s)'],
+                        45: ['Running (25min steady)', 'Bodyweight squats (3x12)', 'Push-ups (3x8)', 'Burpees (2x10)', 'Plank (2x30s)'],
+                        60: ['Running (35min steady)', 'Bodyweight squats (4x12)', 'Push-ups (4x10)', 'Burpees (3x15)', 'Mountain climbers (3x15)', 'Plank (3x45s)'],
+                        90: ['Running (50min steady)', 'Bodyweight squats (4x15)', 'Push-ups (4x12)', 'Burpees (4x15)', 'Mountain climbers (4x20)', 'Plank (4x60s)', 'Jump rope (3x30s)']
+                    },
+                    4: {
+                        45: ['Running (25min steady)', 'Bodyweight squats (3x12)', 'Push-ups (3x8)', 'Burpees (2x10)', 'Plank (2x30s)'],
+                        60: ['Running (35min steady)', 'Bodyweight squats (4x12)', 'Push-ups (4x10)', 'Burpees (3x15)', 'Mountain climbers (3x15)', 'Plank (3x45s)']
+                    },
+                    5: {
+                        45: ['Running (25min steady)', 'Bodyweight squats (3x12)', 'Push-ups (3x8)', 'Burpees (2x10)', 'Plank (2x30s)'],
+                        60: ['Running (35min steady)', 'Bodyweight squats (4x12)', 'Push-ups (4x10)', 'Burpees (3x15)', 'Mountain climbers (3x15)', 'Plank (3x45s)']
+                    },
+                    6: {
+                        60: ['Running (35min steady)', 'Bodyweight squats (4x12)', 'Push-ups (4x10)', 'Burpees (3x15)', 'Mountain climbers (3x15)', 'Plank (3x45s)']
+                    }
+                },
+                intermediate: {
+                    3: {
+                        45: ['Running (30min mixed pace)', 'Jump rope (3x60s)', 'Dumbbell squats (3x12)', 'Dumbbell bench press (3x10)', 'Burpees (3x15)', 'Mountain climbers (3x20)', 'Plank (3x60s)'],
+                        60: ['Running (40min mixed pace)', 'Jump rope (4x90s)', 'Dumbbell squats (4x12)', 'Dumbbell bench press (4x10)', 'Burpees (4x20)', 'Mountain climbers (4x25)', 'Battle ropes (3x45s)', 'Plank (3x90s)'],
+                        90: ['Running (55min mixed pace)', 'Jump rope (5x90s)', 'Dumbbell squats (4x15)', 'Dumbbell bench press (4x12)', 'Burpees (4x25)', 'Mountain climbers (5x30)', 'Battle ropes (4x60s)', 'Cycling (15min steady)', 'Plank (4x90s)']
+                    },
+                    4: {
+                        60: ['Running (40min mixed pace)', 'Jump rope (4x90s)', 'Dumbbell squats (4x12)', 'Dumbbell bench press (4x10)', 'Burpees (4x20)', 'Mountain climbers (4x25)', 'Battle ropes (3x45s)', 'Plank (3x90s)'],
+                        90: ['Running (50min mixed pace)', 'Jump rope (5x90s)', 'Dumbbell squats (4x15)', 'Dumbbell bench press (4x12)', 'Burpees (4x25)', 'Mountain climbers (5x30)', 'Battle ropes (4x60s)', 'Cycling (15min steady)', 'Plank (4x90s)']
+                    },
+                    5: {
+                        60: ['Running (40min mixed pace)', 'Jump rope (4x90s)', 'Dumbbell squats (4x12)', 'Dumbbell bench press (4x10)', 'Burpees (4x20)', 'Mountain climbers (4x25)', 'Battle ropes (3x45s)', 'Plank (3x90s)'],
+                        90: ['Running (50min mixed pace)', 'Jump rope (5x90s)', 'Dumbbell squats (4x15)', 'Dumbbell bench press (4x12)', 'Burpees (4x25)', 'Mountain climbers (5x30)', 'Battle ropes (4x60s)', 'Cycling (15min steady)', 'Plank (4x90s)']
+                    },
+                    6: {
+                        60: ['Running (40min mixed pace)', 'Jump rope (4x90s)', 'Dumbbell squats (4x12)', 'Dumbbell bench press (4x10)', 'Burpees (4x20)', 'Mountain climbers (4x25)', 'Battle ropes (3x45s)', 'Plank (3x90s)'],
+                        90: ['Running (50min mixed pace)', 'Jump rope (5x90s)', 'Dumbbell squats (4x15)', 'Dumbbell bench press (4x12)', 'Burpees (4x25)', 'Mountain climbers (5x30)', 'Battle ropes (4x60s)', 'Cycling (15min steady)', 'Plank (4x90s)']
+                    }
+                },
+                advanced: {
+                    3: {
+                        60: ['Running (40min intervals)', 'Jump rope (5x120s)', 'Dumbbell squats (4x15)', 'Dumbbell bench press (4x12)', 'Burpees (5x25)', 'Mountain climbers (5x30)', 'Battle ropes (4x90s)', 'Rowing (10min steady)'],
+                        90: ['Running (60min intervals)', 'Jump rope (6x120s)', 'Dumbbell squats (5x15)', 'Dumbbell bench press (5x12)', 'Burpees (5x30)', 'Mountain climbers (6x30)', 'Battle ropes (5x120s)', 'Rowing (15min intervals)', 'Cycling (15min intervals)']
+                    },
+                    4: {
+                        60: ['Running (40min intervals)', 'Jump rope (5x120s)', 'Dumbbell squats (4x15)', 'Dumbbell bench press (4x12)', 'Burpees (5x25)', 'Mountain climbers (5x30)', 'Battle ropes (4x90s)', 'Rowing (10min steady)'],
+                        90: ['Running (50min intervals)', 'Jump rope (6x120s)', 'Dumbbell squats (5x15)', 'Dumbbell bench press (5x12)', 'Burpees (5x30)', 'Mountain climbers (6x30)', 'Battle ropes (5x120s)', 'Rowing (15min intervals)', 'Cycling (15min intervals)']
+                    },
+                    5: {
+                        60: ['Running (40min intervals)', 'Jump rope (5x120s)', 'Dumbbell squats (4x15)', 'Dumbbell bench press (4x12)', 'Burpees (5x25)', 'Mountain climbers (5x30)', 'Battle ropes (4x90s)', 'Rowing (10min steady)'],
+                        90: ['Running (50min intervals)', 'Jump rope (6x120s)', 'Dumbbell squats (5x15)', 'Dumbbell bench press (5x12)', 'Burpees (5x30)', 'Mountain climbers (6x30)', 'Battle ropes (5x120s)', 'Rowing (15min intervals)', 'Cycling (15min intervals)']
+                    },
+                    6: {
+                        60: ['Running (40min intervals)', 'Jump rope (5x120s)', 'Dumbbell squats (4x15)', 'Dumbbell bench press (4x12)', 'Burpees (5x25)', 'Mountain climbers (5x30)', 'Battle ropes (4x90s)', 'Rowing (10min steady)'],
+                        90: ['Running (50min intervals)', 'Jump rope (6x120s)', 'Dumbbell squats (5x15)', 'Dumbbell bench press (5x12)', 'Burpees (5x30)', 'Mountain climbers (6x30)', 'Battle ropes (5x120s)', 'Rowing (15min intervals)', 'Cycling (15min intervals)']
+                    }
+                }
+            },
+            muscle_gain: {
+                beginner: {
+                    3: {
+                        45: ['Dumbbell squats (4x10)', 'Dumbbell bench press (4x10)', 'Dumbbell rows (4x10)', 'Push-ups (3x8)', 'Plank (3x30s)'],
+                        60: ['Barbell squats (5x8)', 'Barbell bench press (5x8)', 'Barbell rows (5x8)', 'Dumbbell shoulder press (3x10)', 'Dumbbell curls (3x10)', 'Tricep dips (3x8)'],
+                        90: ['Barbell squats (5x8)', 'Barbell bench press (5x8)', 'Barbell rows (5x8)', 'Dumbbell shoulder press (4x10)', 'Dumbbell curls (4x10)', 'Tricep dips (4x10)', 'Leg press (3x12)', 'Lateral raises (3x12)']
+                    },
+                    4: {
+                        60: ['Barbell squats (5x8)', 'Barbell bench press (5x8)', 'Barbell rows (5x8)', 'Dumbbell shoulder press (3x10)', 'Dumbbell curls (3x10)', 'Tricep dips (3x8)'],
+                        90: ['Barbell squats (5x8)', 'Barbell bench press (5x8)', 'Barbell rows (5x8)', 'Dumbbell shoulder press (4x10)', 'Dumbbell curls (4x10)', 'Tricep dips (4x10)', 'Leg press (3x12)', 'Lateral raises (3x12)']
+                    },
+                    5: {
+                        60: ['Barbell squats (5x8)', 'Barbell bench press (5x8)', 'Barbell rows (5x8)', 'Dumbbell shoulder press (3x10)', 'Dumbbell curls (3x10)', 'Tricep dips (3x8)'],
+                        90: ['Barbell squats (5x8)', 'Barbell bench press (5x8)', 'Barbell rows (5x8)', 'Dumbbell shoulder press (4x10)', 'Dumbbell curls (4x10)', 'Tricep dips (4x10)', 'Leg press (3x12)', 'Lateral raises (3x12)']
+                    },
+                    6: {
+                        60: ['Barbell squats (5x8)', 'Barbell bench press (5x8)', 'Barbell rows (5x8)', 'Dumbbell shoulder press (3x10)', 'Dumbbell curls (3x10)', 'Tricep dips (3x8)'],
+                        90: ['Barbell squats (5x8)', 'Barbell bench press (5x8)', 'Barbell rows (5x8)', 'Dumbbell shoulder press (4x10)', 'Dumbbell curls (4x10)', 'Tricep dips (4x10)', 'Leg press (3x12)', 'Lateral raises (3x12)']
+                    }
+                },
+                intermediate: {
+                    3: {
+                        60: ['Barbell squats (5x6)', 'Barbell bench press (5x6)', 'Barbell rows (5x6)', 'Dumbbell shoulder press (4x8)', 'Barbell curls (4x8)', 'Tricep rope pushdowns (3x10)', 'Leg press (3x8)'],
+                        90: ['Barbell squats (5x6)', 'Barbell bench press (5x6)', 'Barbell rows (5x6)', 'Barbell deadlifts (3x6)', 'Dumbbell shoulder press (4x8)', 'Barbell curls (4x8)', 'Tricep rope pushdowns (3x10)', 'Leg press (3x10)', 'Face pulls (3x12)', 'Weighted dips (3x8)']
+                    },
+                    4: {
+                        60: ['Barbell squats (5x6)', 'Barbell bench press (5x6)', 'Barbell rows (5x6)', 'Dumbbell shoulder press (4x8)', 'Barbell curls (4x8)', 'Tricep rope pushdowns (3x10)', 'Leg press (3x8)'],
+                        90: ['Barbell squats (5x6)', 'Barbell bench press (5x6)', 'Barbell rows (5x6)', 'Barbell deadlifts (3x6)', 'Dumbbell shoulder press (4x8)', 'Barbell curls (4x8)', 'Tricep rope pushdowns (3x10)', 'Leg press (3x10)', 'Face pulls (3x12)', 'Weighted dips (3x8)']
+                    },
+                    5: {
+                        60: ['Barbell squats (5x6)', 'Barbell bench press (5x6)', 'Barbell rows (5x6)', 'Dumbbell shoulder press (4x8)', 'Barbell curls (4x8)', 'Tricep rope pushdowns (3x10)', 'Leg press (3x8)'],
+                        90: ['Barbell squats (5x6)', 'Barbell bench press (5x6)', 'Barbell rows (5x6)', 'Barbell deadlifts (3x6)', 'Dumbbell shoulder press (4x8)', 'Barbell curls (4x8)', 'Tricep rope pushdowns (3x10)', 'Leg press (3x10)', 'Face pulls (3x12)', 'Weighted dips (3x8)']
+                    },
+                    6: {
+                        60: ['Barbell squats (5x6)', 'Barbell bench press (5x6)', 'Barbell rows (5x6)', 'Dumbbell shoulder press (4x8)', 'Barbell curls (4x8)', 'Tricep rope pushdowns (3x10)', 'Leg press (3x8)'],
+                        90: ['Barbell squats (5x6)', 'Barbell bench press (5x6)', 'Barbell rows (5x6)', 'Barbell deadlifts (3x6)', 'Dumbbell shoulder press (4x8)', 'Barbell curls (4x8)', 'Tricep rope pushdowns (3x10)', 'Leg press (3x10)', 'Face pulls (3x12)', 'Weighted dips (3x8)']
+                    }
+                },
+                advanced: {
+                    3: {
+                        60: ['Barbell squats (5x5)', 'Barbell bench press (5x5)', 'Barbell rows (5x5)', 'Barbell deadlifts (4x4)', 'Dumbbell shoulder press (4x6)', 'Barbell curls (3x6)', 'Tricep rope pushdowns (3x8)', 'Leg press (3x8)'],
+                        90: ['Barbell squats (5x5)', 'Barbell bench press (5x5)', 'Barbell rows (5x5)', 'Barbell deadlifts (4x4)', 'Dumbbell shoulder press (4x6)', 'Barbell curls (3x6)', 'Tricep rope pushdowns (3x8)', 'Leg press (3x8)', 'Weighted dips (4x6)', 'Face pulls (3x12)', 'Ab wheel (3x10)', 'Barbell hack squats (3x8)']
+                    },
+                    4: {
+                        60: ['Barbell squats (5x5)', 'Barbell bench press (5x5)', 'Barbell rows (5x5)', 'Barbell deadlifts (4x4)', 'Dumbbell shoulder press (4x6)', 'Barbell curls (3x6)', 'Tricep rope pushdowns (3x8)', 'Leg press (3x8)'],
+                        90: ['Barbell squats (5x5)', 'Barbell bench press (5x5)', 'Barbell rows (5x5)', 'Barbell deadlifts (4x4)', 'Dumbbell shoulder press (4x6)', 'Barbell curls (3x6)', 'Tricep rope pushdowns (3x8)', 'Leg press (3x8)', 'Weighted dips (4x6)', 'Face pulls (3x12)', 'Ab wheel (3x10)', 'Barbell hack squats (3x8)']
+                    },
+                    5: {
+                        60: ['Barbell squats (5x5)', 'Barbell bench press (5x5)', 'Barbell rows (5x5)', 'Barbell deadlifts (4x4)', 'Dumbbell shoulder press (4x6)', 'Barbell curls (3x6)', 'Tricep rope pushdowns (3x8)', 'Leg press (3x8)'],
+                        90: ['Barbell squats (5x5)', 'Barbell bench press (5x5)', 'Barbell rows (5x5)', 'Barbell deadlifts (4x4)', 'Dumbbell shoulder press (4x6)', 'Barbell curls (3x6)', 'Tricep rope pushdowns (3x8)', 'Leg press (3x8)', 'Weighted dips (4x6)', 'Face pulls (3x12)', 'Ab wheel (3x10)', 'Barbell hack squats (3x8)']
+                    },
+                    6: {
+                        60: ['Barbell squats (5x5)', 'Barbell bench press (5x5)', 'Barbell rows (5x5)', 'Barbell deadlifts (4x4)', 'Dumbbell shoulder press (4x6)', 'Barbell curls (3x6)', 'Tricep rope pushdowns (3x8)', 'Leg press (3x8)'],
+                        90: ['Barbell squats (5x5)', 'Barbell bench press (5x5)', 'Barbell rows (5x5)', 'Barbell deadlifts (4x4)', 'Dumbbell shoulder press (4x6)', 'Barbell curls (3x6)', 'Tricep rope pushdowns (3x8)', 'Leg press (3x8)', 'Weighted dips (4x6)', 'Face pulls (3x12)', 'Ab wheel (3x10)', 'Barbell hack squats (3x8)']
+                    }
+                }
+            },
+            recovery: {
+                beginner: {
+                    3: {
+                        30: ['Light walking (10min)', 'Foam rolling (5min)', 'Gentle stretching (10min)', 'Child\'s pose (2x30s)', 'Breathing exercises (5min)'],
+                        45: ['Light walking (15min)', 'Foam rolling (10min)', 'Gentle stretching (15min)', 'Child\'s pose (3x45s)', 'Cat-cow (2x10)', 'Breathing exercises (5min)'],
+                        60: ['Light walking (20min)', 'Foam rolling (15min)', 'Gentle stretching (20min)', 'Child\'s pose (3x60s)', 'Cat-cow (3x12)', 'Pigeon pose (2x45s)', 'Breathing exercises (5min)'],
+                        90: ['Light walking (30min)', 'Foam rolling (20min)', 'Gentle stretching (25min)', 'Child\'s pose (4x60s)', 'Cat-cow (3x15)', 'Pigeon pose (3x60s)', 'Hip circles (2x10)', 'Breathing exercises (10min)']
+                    },
+                    4: {
+                        45: ['Light walking (15min)', 'Foam rolling (10min)', 'Gentle stretching (15min)', 'Child\'s pose (3x45s)', 'Cat-cow (2x10)', 'Breathing exercises (5min)'],
+                        60: ['Light walking (20min)', 'Foam rolling (15min)', 'Gentle stretching (20min)', 'Child\'s pose (3x60s)', 'Cat-cow (3x12)', 'Pigeon pose (2x45s)', 'Breathing exercises (5min)']
+                    },
+                    5: {
+                        45: ['Light walking (15min)', 'Foam rolling (10min)', 'Gentle stretching (15min)', 'Child\'s pose (3x45s)', 'Cat-cow (2x10)', 'Breathing exercises (5min)'],
+                        60: ['Light walking (20min)', 'Foam rolling (15min)', 'Gentle stretching (20min)', 'Child\'s pose (3x60s)', 'Cat-cow (3x12)', 'Pigeon pose (2x45s)', 'Breathing exercises (5min)']
+                    },
+                    6: {
+                        60: ['Light walking (20min)', 'Foam rolling (15min)', 'Gentle stretching (20min)', 'Child\'s pose (3x60s)', 'Cat-cow (3x12)', 'Pigeon pose (2x45s)', 'Breathing exercises (5min)']
+                    }
+                },
+                intermediate: {
+                    3: {
+                        45: ['Light jogging (15min)', 'Foam rolling (12min)', 'Gentle stretching (15min)', 'Child\'s pose (3x60s)', 'Cat-cow (3x15)', 'Pigeon pose (3x60s)', 'Breathing exercises (5min)'],
+                        60: ['Light jogging (20min)', 'Foam rolling (15min)', 'Gentle stretching (20min)', 'Child\'s pose (4x60s)', 'Cat-cow (4x15)', 'Pigeon pose (4x60s)', 'Spinal twist (3x45s)', 'Breathing exercises (5min)'],
+                        90: ['Light jogging (25min)', 'Foam rolling (20min)', 'Gentle stretching (25min)', 'Child\'s pose (4x60s)', 'Cat-cow (4x15)', 'Pigeon pose (4x60s)', 'Spinal twist (4x60s)', 'Shoulder rolls (2x15)', 'Hip circles (3x10)', 'Breathing exercises (10min)']
+                    },
+                    4: {
+                        60: ['Light jogging (20min)', 'Foam rolling (15min)', 'Gentle stretching (20min)', 'Child\'s pose (4x60s)', 'Cat-cow (4x15)', 'Pigeon pose (4x60s)', 'Spinal twist (3x45s)', 'Breathing exercises (5min)'],
+                        90: ['Light jogging (25min)', 'Foam rolling (20min)', 'Gentle stretching (25min)', 'Child\'s pose (4x60s)', 'Cat-cow (4x15)', 'Pigeon pose (4x60s)', 'Spinal twist (4x60s)', 'Shoulder rolls (2x15)', 'Hip circles (3x10)', 'Breathing exercises (10min)']
+                    },
+                    5: {
+                        60: ['Light jogging (20min)', 'Foam rolling (15min)', 'Gentle stretching (20min)', 'Child\'s pose (4x60s)', 'Cat-cow (4x15)', 'Pigeon pose (4x60s)', 'Spinal twist (3x45s)', 'Breathing exercises (5min)'],
+                        90: ['Light jogging (25min)', 'Foam rolling (20min)', 'Gentle stretching (25min)', 'Child\'s pose (4x60s)', 'Cat-cow (4x15)', 'Pigeon pose (4x60s)', 'Spinal twist (4x60s)', 'Shoulder rolls (2x15)', 'Hip circles (3x10)', 'Breathing exercises (10min)']
+                    },
+                    6: {
+                        60: ['Light jogging (20min)', 'Foam rolling (15min)', 'Gentle stretching (20min)', 'Child\'s pose (4x60s)', 'Cat-cow (4x15)', 'Pigeon pose (4x60s)', 'Spinal twist (3x45s)', 'Breathing exercises (5min)'],
+                        90: ['Light jogging (25min)', 'Foam rolling (20min)', 'Gentle stretching (25min)', 'Child\'s pose (4x60s)', 'Cat-cow (4x15)', 'Pigeon pose (4x60s)', 'Spinal twist (4x60s)', 'Shoulder rolls (2x15)', 'Hip circles (3x10)', 'Breathing exercises (10min)']
+                    }
+                },
+                advanced: {
+                    3: {
+                        60: ['Light swimming (20min)', 'Deep tissue foam rolling (15min)', 'Advanced stretching (20min)', 'Yoga flow (15min)', 'Breathing exercises (10min)'],
+                        90: ['Light swimming (25min)', 'Deep tissue foam rolling (20min)', 'Advanced stretching (25min)', 'Yoga flow (20min)', 'Meditation (15min)', 'Breathing exercises (10min)']
+                    },
+                    4: {
+                        60: ['Light swimming (20min)', 'Deep tissue foam rolling (15min)', 'Advanced stretching (20min)', 'Yoga flow (15min)', 'Breathing exercises (10min)'],
+                        90: ['Light swimming (25min)', 'Deep tissue foam rolling (20min)', 'Advanced stretching (25min)', 'Yoga flow (20min)', 'Meditation (15min)', 'Breathing exercises (10min)']
+                    },
+                    5: {
+                        60: ['Light swimming (20min)', 'Deep tissue foam rolling (15min)', 'Advanced stretching (20min)', 'Yoga flow (15min)', 'Breathing exercises (10min)'],
+                        90: ['Light swimming (25min)', 'Deep tissue foam rolling (20min)', 'Advanced stretching (25min)', 'Yoga flow (20min)', 'Meditation (15min)', 'Breathing exercises (10min)']
+                    },
+                    6: {
+                        60: ['Light swimming (20min)', 'Deep tissue foam rolling (15min)', 'Advanced stretching (20min)', 'Yoga flow (15min)', 'Breathing exercises (10min)'],
+                        90: ['Light swimming (25min)', 'Deep tissue foam rolling (20min)', 'Advanced stretching (25min)', 'Yoga flow (20min)', 'Meditation (15min)', 'Breathing exercises (10min)']
+                    }
+                }
+            }
+        };
+
+        const goalNames = {
+            strength: 'Build Strength',
+            endurance: 'Build Endurance',
+            flexibility: 'Improve Flexibility',
+            weight_loss: 'Weight Loss',
+            muscle_gain: 'Build Muscle',
+            recovery: 'Recovery & Mobility'
+        };
+
+        const nutritionTips = {
+            strength: 'Focus on protein intake (0.8-1g per lb of bodyweight) to support muscle recovery. Include complex carbs for energy and healthy fats for hormone production.',
+            endurance: 'Maintain adequate carbohydrate intake (5-7g per kg of bodyweight) for sustained energy. Stay hydrated and consume electrolytes during longer sessions.',
+            flexibility: 'Maintain a balanced diet with sufficient hydration. Include foods rich in collagen and omega-3 fatty acids to support joint health.',
+            weight_loss: 'Create a caloric deficit of 300-500 calories while maintaining protein intake to preserve muscle. Track your food intake consistently.',
+            muscle_gain: 'Consume 0.8-1g of protein per lb of bodyweight and eat in a slight caloric surplus. Include all macronutrients: carbs, proteins, and fats.',
+            recovery: 'Focus on anti-inflammatory foods like berries, leafy greens, and fatty fish. Ensure adequate sleep (7-9 hours) for optimal recovery.'
+        };
+
+        const recoveryTips = {
+            strength: 'Rest 48-72 hours between training same muscle groups. Use foam rolling and stretching on rest days.',
+            endurance: 'Include easy recovery days to prevent overtraining. Practice active recovery like light walking or swimming.',
+            flexibility: 'Perform foam rolling and massage for 5-10 minutes daily. Stay hydrated and get adequate sleep.',
+            weight_loss: 'Maintain consistent cardio while allowing muscle recovery. Track progress with measurements and photos, not just scale weight.',
+            muscle_gain: 'Get 7-9 hours of sleep nightly for optimal recovery. Consider deload weeks every 4-6 weeks to prevent plateaus.',
+            recovery: 'Prioritize sleep (8-10 hours). Use ice baths or heat therapy as needed. Manage stress through meditation and breathing exercises.'
+        };
+
+        function generateWorkout() {
+            const goal = document.querySelector('input[name="goal"]:checked').value;
+            const experience = document.getElementById('experience').value;
+            const days = document.getElementById('days').value;
+            const duration = document.getElementById('duration').value;
+            const equipment = document.getElementById('equipment').value || 'Not specified';
+
+            const exercises = getExercises(goal, experience, days, duration);
+            
+            if (!exercises) {
+                alert('This combination is not available. Please select a different combination.');
+                return;
+            }
+
+            displayResults(goal, experience, days, duration, equipment, exercises);
+        }
+
+        function getExercises(goal, experience, days, duration) {
+            try {
+                return workoutData[goal][experience][days][duration];
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function displayResults(goal, experience, days, duration, equipment, exercises) {
+            const resultsSection = document.getElementById('resultsSection');
+            const workoutResults = document.getElementById('workoutResults');
+
+            const daysArray = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const selectedDays = daysArray.slice(0, parseInt(days));
+
+            let html = `
+                <div class="workout-routine">
+                    <div class="routine-header">
+                        <h3>${goalNames[goal]} Plan</h3>
+                        <div class="routine-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Experience:</span>
+                                <span>${experience.charAt(0).toUpperCase() + experience.slice(1)}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Frequency:</span>
+                                <span>${days} days/week</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Duration:</span>
+                                <span>${duration} minutes</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Equipment:</span>
+                                <span>${equipment}</span>
+                            </div>
+                        </div>
+                    </div>
+            `;
+
+            selectedDays.forEach((day, index) => {
+                html += `
+                    <div class="day-section">
+                        <h4>📅 ${day}</h4>
+                        <ul class="exercise-list">
+                `;
+
+                exercises.forEach(ex => {
+                    const parts = ex.match(/(.+?)\s*\((.+?)\)/);
+                    if (parts) {
+                        const name = parts[1];
+                        const details = parts[2];
+                        html += `
+                            <li class="exercise-item">
+                                <span class="exercise-name">${name}</span>
+                                <div class="exercise-details">
+                                    <span class="detail-badge">${details}</span>
+                                </div>
+                            </li>
+                        `;
+                    }
+                });
+
+                html += `
+                        </ul>
+                    </div>
+                `;
+            });
+
+            html += `
+                    <div class="nutrition-tip">
+                        <h4>🥗 Nutrition Recommendation</h4>
+                        <p>${nutritionTips[goal]}</p>
+                    </div>
+
+                    <div class="recovery-tips">
+                        <h4>💤 Recovery Tips</h4>
+                        <ul>
+                            <li>${recoveryTips[goal]}</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+
+            workoutResults.innerHTML = html;
+            document.getElementById('inputSection').style.display = 'none';
+            resultsSection.classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function backToForm() {
+            document.getElementById('inputSection').style.display = 'grid';
+            document.getElementById('resultsSection').classList.remove('active');
+            window.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html>
